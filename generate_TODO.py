@@ -8,10 +8,11 @@ from config import (TASK_1,
                     TASK_6,
                     TASK_7,
                     TASK_8,
+                    DAILY_TODO_PATH
                     )
 
-def generate_todo_file(start_date, end_date, tasks, filename):
-    # Convert the input dates to datetime objects
+def generate_todo_file(start_date, end_date, tasks, file_path):
+    # Convert input dates to datetime objects
     start_date = datetime.strptime(start_date, "%Y-%m-%d")
     end_date = datetime.strptime(end_date, "%Y-%m-%d")
     
@@ -20,19 +21,19 @@ def generate_todo_file(start_date, end_date, tasks, filename):
     workday_tasks = tasks.get("workday", [])
     special_tasks = tasks.get("special", {})
     
-    # Open the file for writing
-    with open(filename, 'w') as file:
+    # Open file for writing
+    with open(file_path, 'w', encoding='utf-8') as file:
         # Iterate through each date from start_date to end_date
         current_date = start_date
         while current_date <= end_date:
-            # Write the date in YYYY-MM-DD format
+            # Write date in YYYY-MM-DD format
             file.write(f"{current_date.strftime('%Y-%m-%d')}:\n")
             
             # Write everyday tasks
             for task in everyday_tasks:
                 file.write(f"    ☐ {task}\n")
             
-            # Write workday tasks if the current date is a weekday
+            # Write workday tasks if current date is a weekday
             if current_date.weekday() < 5:  # Monday is 0, Sunday is 6
                 for task in workday_tasks:
                     file.write(f"    ☐ {task}\n")
@@ -44,7 +45,7 @@ def generate_todo_file(start_date, end_date, tasks, filename):
                     file.write(f"    ☐ {task}\n")
             
             file.write("\n")
-            # Move to the next day
+            # Move to next day
             current_date += timedelta(days=1)
 
 # Enter date range and tasks
@@ -58,7 +59,7 @@ tasks = {
         "Sunday": [TASK_8]
     }
 }
-filename = "daily_tasks.TODO"
+file_path = DAILY_TODO_PATH
 
-generate_todo_file(start_date, end_date, tasks, filename)
-print(f"{filename} has been created successfully!")
+generate_todo_file(start_date, end_date, tasks, file_path)
+print(f"{file_path} has been created successfully!")
