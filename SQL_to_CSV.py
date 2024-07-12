@@ -1,50 +1,68 @@
 import os
 import re
-import csv
+import pandas as pd
 
 from config import (DATABASE_1_TXT)
 
-# Regex pattern to match INSERT INTO statements
-insert_pattern = re.compile(r"INSERT INTO `(\w+)` \((.*?)\) VALUES\s*\((.*?)\);", re.DOTALL)
+# Path to SQL file
+sql_file_path = DATABASE_1_TXT
 
-# Function to parse and process SQL insert statements
-def parse_sql_inserts(sql_file):
-    output_folder = "Resources/wp_content_csv"
-    os.makedirs(output_folder, exist_ok=True)  # Create output folder if it doesn't exist
-    
-    with open(sql_file, 'r', encoding='utf-8') as file:
-        sql_content = file.read()
+# Output directory for CSV files
+output_dir = 'Resources/SQL_content_CSVs'
+os.makedirs(output_dir, exist_ok=True)
 
-    insert_matches = insert_pattern.findall(sql_content)
+# Regex patterns to match INSERT INTO statements and extract data
+insert_into_pattern = re.compile(r"INSERT INTO `(\w+)` \((.*?)\) VALUES\s*(.*?);", re.DOTALL)
+
+
+# Function to process and extract data from INSERT INTO statements
+def extract_data_from_sql(sql_content):
+    insert_statements = insert_into_pattern.findall(sql_content)
     
-    for match in insert_matches:
-        table_name = match[0]
-        columns = match[1].split(', ')
-        values = match[2].split('), (')
+    table_data = {}
+    
+    for table_name, columns, values_block in insert_statements:
+        columns = [col.strip().strip('`') for col in columns.split(',')]
         
-        # Clean up values and format for CSV
-        cleaned_values = []
+        # Split values block into individual value sets
+        values_block = values_block.replace('),', ')\n').replace('(', '').replace(')', '')
+        values = values_block.split('\n')
+        values = [val.replace('\'', '').split(',') for val in values if val.strip()]
+        
+        if table_name not in table_data:
+            table_data[table_name] = {
+                'columns': columns,
+                'rows': []
+            }
+        
         for value_set in values:
-            cleaned_value_set = value_set.strip().replace("'", "").replace("(", "").replace(")", "")
-            cleaned_values.append(cleaned_value_set)
-        
-        # # CSV filename based on table name
-        # csv_filename = os.path.join(output_folder, f"{table_name}.csv")
-        
-        # # Write to CSV file
-        # with open(csv_filename, 'a', newline='', encoding='utf-8') as csv_file:
-        #     csv_writer = csv.writer(csv_file)
-            
-        #     # Write header if file is new
-        #     if os.path.getsize(csv_filename) == 0:  # Check if file is empty
-        #         csv_writer.writerow(columns)
-            
-        #     # Write values
-        #     for cleaned_value_set in cleaned_values:
-        #         csv_writer.writerow(cleaned_value_set.split(','))
-        
-        # print(f"Processed {len(cleaned_values)} rows into {csv_filename}")
+            row = [val.strip() for val in value_set]
+            table_data[table_name]['rows'].append(row)
+    
+    return table_data
 
 
-if __name__ == "__main__":
-    parse_sql_inserts(DATABASE_1_TXT)
+# Function to write data to CSV files using pandas
+def write_data_to_csv(table_data):
+    for table_name, data in table_data.items():
+        df = pd.DataFrame(data['rows'], columns=data['columns'])
+        csv_file_path = os.path.join(output_dir, f"{table_name}.csv")
+        df.to_csv(csv_file_path, index=False)
+
+
+def main():
+    # Read SQL file content
+    with open(sql_file_path, 'r', encoding='utf-8') as sql_file:
+        sql_content = sql_file.read()
+
+    # Extract data from SQL content
+    table_data = extract_data_from_sql(sql_content)
+
+    # Write extracted data to CSV files
+    write_data_to_csv(table_data)
+
+    print("Data has been successfully extracted and written to CSV files.")
+
+
+if __name__ == '__main__':
+    main()
