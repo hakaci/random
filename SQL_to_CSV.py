@@ -8,7 +8,7 @@ from config import (DATABASE_1_TXT)
 sql_file_path = DATABASE_1_TXT
 
 # Output directory for CSV files
-output_dir = 'Resources/SQL_content_CSVs'
+output_dir = 'resources/SQL_content_CSVs'
 os.makedirs(output_dir, exist_ok=True)
 
 # Regex patterns to match INSERT INTO statements and extract data

@@ -21,7 +21,7 @@ def save_json(content, json_path):
 
 
 def main():
-    pdf_dir = os.path.join('Resources', 'PDFS')
+    pdf_dir = os.path.join('resources', 'PDFS')
     for file_name in os.listdir(pdf_dir):
         if file_name.endswith('.pdf'):
             pdf_path = os.path.join(pdf_dir, file_name)

@@ -3,7 +3,7 @@ import sqlite3
 from config import (DATABASE_1)
 
 # Connect to SQLite database
-conn = sqlite3.connect(r'Resources\fart.db')
+conn = sqlite3.connect(r'resources\fart.db')
 cursor = conn.cursor()
 
 # Open and read the .sql file

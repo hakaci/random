@@ -12,4 +12,4 @@ def csv_to_jsonl_pandas(csv_file_path, jsonl_file_path, chunksize=10000):
 
            
 # Enter inputs
-csv_to_jsonl_pandas(YOUTUBE_DOWNLOAD_LIST, r'Resources\output_file1.jsonl')
+csv_to_jsonl_pandas(YOUTUBE_DOWNLOAD_LIST, r'resources\output_file1.jsonl')

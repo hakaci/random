@@ -1,5 +1,7 @@
 config.py
 __pycache__
-Resources
+resources
 venv
 .vscode
+subtotal.py
+apps
